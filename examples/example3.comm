@@ -1,0 +1,4 @@
+# Example 3: conditional
+new k := 7 in
+if true then print k else skip; skip end;
+skip

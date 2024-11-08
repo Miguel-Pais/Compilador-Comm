@@ -1,0 +1,8 @@
+(executable
+ (name comm)
+ (libraries unix))
+
+(ocamllex lexer)
+
+(menhir
+  (modules parser))

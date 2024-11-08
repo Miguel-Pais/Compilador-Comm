@@ -1,0 +1,8 @@
+eval $(opam env)
+dune build
+
+_build/default/comm.exe --execute examples/extension-function.comm
+_build/default/comm.exe --code examples/extension-function.comm
+
+verificaçao de tipo
+extençao para funcçoes

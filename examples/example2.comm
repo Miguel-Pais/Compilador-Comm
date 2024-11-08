@@ -1,0 +1,9 @@
+# Example 2: loop
+new n := 1 in
+while n < 10 do
+n := n + 1
+done;
+
+# Print n
+print n;
+skip

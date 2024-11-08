@@ -1,0 +1,11 @@
+# Example 4: factorial
+
+new y := 5 in
+new a := 1 in
+
+while 0 < y do
+a := a * y;
+y := y - 1
+done;
+print a;
+skip

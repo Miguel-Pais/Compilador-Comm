@@ -1,0 +1,7 @@
+# Example 1: Print n + n | n - n | n * n | n / n
+new n := 1 in
+print n + n;
+print n - n;
+print n * n;
+print n / n;
+skip

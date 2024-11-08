@@ -1,0 +1,47 @@
+type token =
+    WHILE
+  | VARIABLE of string
+  | TRUE
+  | TIMES
+  | THEN
+  | SKIP
+  | SEMICOLON
+  | RPAREN
+  | RETURN
+  | REMAINDER
+  | PRINT
+  | PLUS
+  | PARAMETERCOMMA
+  | OR
+  | NUMERAL of int
+  | NOT
+  | NEW
+  | MINUS
+  | LPAREN
+  | LESS
+  | IN
+  | IF
+  | FTIMES
+  | FPRINT
+  | FPLUS
+  | FMINUS
+  | FLOATING of float
+  | FDIVIDE
+  | FALSE
+  | EQUAL
+  | EOF
+  | END
+  | ELSE
+  | DONE
+  | DO
+  | DIVIDE
+  | ASSIGN
+  | AND
+val menhir_begin_marker : int
+val xv_program : Syntax.command
+val xv_funcarg : Syntax.funcargs
+val xv_file : Syntax.command list
+val xv_expression : Syntax.expression
+val xv_command : Syntax.command
+val xv_boolean : Syntax.boolean
+val menhir_end_marker : int
