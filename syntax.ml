@@ -8,8 +8,9 @@ type funcargs =
 (** Arithmetical expressions. *)
 type expression =
   | NewFunc of string * expression 
-  | PassArgs of expression * expression 
+  | PassArgs of expression * expression
   | Variable of string (* a variable *)
+  | ReturnVal of int
   | Floating of float (* float *)
   | Numeral of int (* integer constant *)
   | FPlus of expression * expression (* addition [e1 +. e2] *)
@@ -34,7 +35,7 @@ type boolean =
 
 (** Commands. *)
 type command =
-  | Func of string * funcargs * command * command * string
+  | Func of string * funcargs * command * command
   | Skip (* no operation [skip] *)
   | New of string * expression * command (* variable declaration [new x := e in c] *)
   | FPrint of expression (* print expression [print e] *)
@@ -43,3 +44,4 @@ type command =
   | Sequence of command * command (* sequence commands [c1 ; c2] *)
   | While of boolean * command (* loop [while b do c done] *)
   | Conditional of boolean * command * command (* conditional [if b then c1 else c2 end] *)
+  | Return of expression

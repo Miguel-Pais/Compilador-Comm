@@ -34,8 +34,9 @@ let compile cmd =
   (* Compile an expression in the given context [ctx]. *)
   let rec expression ctx = function
     | Syntax.NewFunc(a, e) -> expression ctx e @ [ Callfunc a ]
-    | Syntax.PassArgs (e1,e2)-> expression ctx e2 @ expression ctx e1
+    | Syntax.PassArgs (e1,e2)-> expression ctx e1 @ expression ctx e2
     | Syntax.Variable x -> let k = location ctx x in [ GET k ]
+    | Syntax.ReturnVal k -> [ Return k ]
     | Syntax.Floating k -> [ FPUSH k ]
     | Syntax.Numeral k -> [ PUSH k ]
     
@@ -62,7 +63,6 @@ let compile cmd =
         expression ctx e1 @ expression ctx e2 @ [ MOD ]
   in
 
-
   (* Compile a boolean expression in the given context. *)
   let rec boolean ctx = function
     | Syntax.True -> [ PUSH 1 ]
@@ -74,25 +74,23 @@ let compile cmd =
     | Syntax.Not b -> boolean ctx b @ [ NOT ]
   in
 
-
   let rec numargs = function
     | Syntax.Args (_, f) -> 1 + numargs f
     | Syntax.Arg (_) -> 1
   in
-
-
-  let rec funcargs = function
+  let rec funcargs = function 
     | Syntax.Arg (x) -> [ V(x) ]
-    | Syntax.Args (x, f) -> V(x) :: funcargs (f)
-  in
+    | Syntax.Args (x, f) -> V(x) :: funcargs f
+  in 
 
   (* Compile the given command in the given context [ctx]. *)
   let rec command ctx = function
-    | Syntax.Func (x, a, c, c2, ret) ->
-      let ctx = V(ret) :: (funcargs a) @ F(x, numargs a) :: ctx in
+    | Syntax.Return e -> expression ctx e
+    | Syntax.Func (x, a, c, c2) ->
+      let ctx = (funcargs a) @ F(x, numargs a) :: ctx in
       let c' = command ctx c in
       let c2' = command ctx c2 in
-      [ FuncStart x ] @ c' @ [ Return(x,location (ctx) (ret))] @ c2'
+      [ FuncStart x ] @ c' @ [ FuncEnd x ] @ c2'
 
     | Syntax.New (x, e, c) ->
       let e' = expression ctx e in

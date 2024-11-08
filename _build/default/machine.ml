@@ -29,11 +29,9 @@ type instruction =
   | FPRINT 
   | TYPE of string
   | FuncStart of string
-  (*
   | FuncEnd of string
-  *)
   | Callfunc of string
-  | Return of string * int
+  | Return of int
 (** Print an instruction. *)
 let print_instruction_rv32 instr k0 ppf =
   match instr with
@@ -148,8 +146,9 @@ let print_instruction_rv32 instr k0 ppf =
       Format.fprintf ppf "lw a0, 0(sp)\naddi sp, sp, 4\nli a7, 1\necall # PRINT"
   | FPRINT -> Format.fprintf ppf "flw fa0, 0(sp)\naddi sp, sp, 4\nli a7, 2\necall # FPRINT"
   | FuncStart name -> Format.fprintf ppf "j %s_end \n%s: # FUNCSTART" name name
+  | FuncEnd name -> Format.fprintf ppf "ret \n%s_end: # FUNCEND" name
   | Callfunc name -> Format.fprintf ppf "call %s # CALLFUNC" name
-  | Return (k, k2) -> Format.fprintf ppf "ret \n%s_end: #RETURN %d" k k2
+  | Return k -> Format.fprintf ppf "addi sp, sp, -4\nsw s%d, 0(sp) #RETURN %d" k k
 
 (** Machine errors *)
 type error = Illegal_address | Illegal_instruction | Zero_division
@@ -287,8 +286,9 @@ let exec s =
       let a = pop s in
       Format.printf "%d@." a
   | FuncStart _ 
+  | FuncEnd _ 
   | Callfunc _
-  | Return (_,_) -> ()
+  | Return _ -> ()
 
 (** In given state [s], run the program. *)
 let run s =

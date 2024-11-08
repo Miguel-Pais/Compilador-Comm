@@ -52,7 +52,8 @@ funcarg:
   | x=VARIABLE                          { Syntax.Arg x }
 
 command:
-  | NEW x=VARIABLE p=funcarg LPAREN c=command IN RETURN e=VARIABLE RPAREN IN c2=command { Syntax.Func(x, p, c, c2, e) }
+  | RETURN e=expression                                            { Syntax.Return e}
+  | NEW x=VARIABLE p=funcarg LPAREN c=command RPAREN IN c2=command { Syntax.Func(x, p, c, c2) }
   | SKIP                                                           { Syntax.Skip }
   | NEW x=VARIABLE ASSIGN e=expression IN c=command                { Syntax.New(x, e, c) }
   | FPRINT e=expression                                            { Syntax.FPrint e }
