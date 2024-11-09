@@ -86,3 +86,26 @@ _build/default/comm.exe --execute examples/example1.comm
 The underlying machine has a fixed amount of RAM (configurable `--ram` command-line option), a program, the program counter, and a stack pointer.
 The stack grows downards, from the top of RAM towards the bottom.
 
+### Tasks
+
+* Estender os operadores %, e, = (dificuldade baixa) extension-operators.comm
+
+* Extensão de floats (dificuldade média) extension-floats.comm
+
+* Implementar a verificação do tipo para variáveis inteiras e floats num módulo à parte (dificuldade baixa)
+
+* Compilar a linguagem comm para a linguagem de WebAssembly (dificuldade média) extension-target-language
+
+* Estender a linguagem comm com records utilizando a noção de endereço e de campos - como vimos na aula teórica 4 (dificuldade média)
+
+* Estender a linguagem comm com funções - como vimos na aula teórica 5 (dificuldade baixa)
+
+* Estender a linguagem comm com funções anónimas e fecho lexical (dificuldade alta)
+
+* Implementar a geração de código de funções (dificuldade média)
+
+* Implementar os tipos de dados abstrato (módulo) para ajuda na geração de código assembly - RV32IMF e WebAssembly (dificuldade média)
+
+* Formalizar o sistema de tipos da linguagem resultante comm++ (dificuldade média ou alta consoante as extensões)
+
+* Utilizando a semântica formal do webassembly, mostrar a preservação semântica da linguagem comm ou comm++ (dificuldade alta)*

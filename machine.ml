@@ -36,7 +36,7 @@ type instruction =
 
 let print_instruction_web instr k0 ppf =
   match instr with
-  | _ -> Format.fprintf ppf "addi t0, t0, 0 #NOP %d" k0
+  | _ -> Format.fprintf ppf "#TEMPLATE %d" k0
 
 
 let print_instruction_rv32 instr k0 ppf =
