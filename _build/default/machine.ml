@@ -33,6 +33,12 @@ type instruction =
   | Callfunc of string
   | Return of int
 (** Print an instruction. *)
+
+let print_instruction_web instr k0 ppf =
+  match instr with
+  | _ -> Format.fprintf ppf "addi t0, t0, 0 #NOP %d" k0
+
+
 let print_instruction_rv32 instr k0 ppf =
   match instr with
   | TYPE _ -> ()
@@ -171,7 +177,11 @@ let print_code code ppf =
     (fun k instr ->
       Format.fprintf ppf "l%03d:\n%t@\n" k (print_instruction_rv32 instr k))
     code
-
+let print_code_web code ppf =
+  Array.iteri
+    (fun k instr ->
+      Format.fprintf ppf "l%03d:\n%t@\n" k (print_instruction_web instr k))
+    code
 type state = {
   code : instruction array; (* program *)
   ram : int array; (* random-access memory *)

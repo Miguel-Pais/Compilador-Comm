@@ -1,7 +1,7 @@
 new add a , b
 (
 new c := a + b in
-return c
+print c
 ) in
 
 new num := add (100, 5) in 
