@@ -1,7 +1,7 @@
 
 # Comm programming language
 
-A simple procedural language with integer arithmetic `+,-,*,/`, boolean expressions `and,or,not`, local variables, conditional statements, `while` loops and printing `print`.
+A simple procedural language with integer arithmetic `+,-,*,/`, boolean expressions `and,or,not`, simple expression comparison using `=,<`, local variables, conditional statements, `while` loops, printing `print` and `print_f` and functions. 
 Comm programs are compiled for RV32IM ISA.
 
 ## Abstract syntax
