@@ -4,15 +4,16 @@ open Machine
 (** Compile the given command. *)
 
 
+
 type declaration_type = 
-  V of string
- | F of string * int
+  V of string * bool * int
+ | F of string * int * int
 
 let rec print_dec_type_list list =
   match list with
   | [] -> Printf.printf "\n"
-  | V(x) :: tail
-  | F(x,_) :: tail -> (Printf.printf "%s\n" x); print_dec_type_list tail
+  | V(x,ispar, stackpos) :: tail -> (Printf.printf "Variable %s at stack frame offset %d is argument %b\n" x stackpos ispar); print_dec_type_list tail
+  | F(x,a, stackpos) :: tail -> (Printf.printf "Function %s at stack frame offset %d has %d arguments\n" x stackpos a); print_dec_type_list tail
 let compile cmd =
   (* We keep around a context, which is a list of currently valid variables,
      with more recently declared variables at the beginning of the list. *)
@@ -21,33 +22,67 @@ let compile cmd =
      The location of a variable is its de Bruijn level: the first declared variable
      is at location 0, the second at location 1, etc.
   *)
+
+  let rec numargs = function
+  | Syntax.Args (_, f) -> 1 + numargs f
+  | Syntax.Arg (_) -> 1
+  in
+
+  let rec funcargs numargs = function 
+    | Syntax.Arg (x) -> [ V(x,true, numargs * 4 + 4) ]
+    | Syntax.Args (x, f) -> V(x,true, numargs * + 4 + 4) :: funcargs (numargs-1) f
+  in 
+
+  let rec lastVarLocation ctx counter =
+    match ctx with
+    | V(_, false, _) :: tail -> lastVarLocation tail (counter - 4)
+    | _ -> counter - 4
+  in 
+
+  let rec locationWithStackFrame ctx x =
+    match ctx with
+    | V(varName, _, loc) :: tail -> (*Printf.printf "%d" loc;*) if x = varName then loc else locationWithStackFrame tail x
+    | _ -> 0
+  in
+  let rec getRetLocation ctx max =
+    match ctx with
+    | [] -> max + 4
+    | V(_,true, k) :: tail -> if k > max then getRetLocation tail k else getRetLocation tail max
+    | _ :: tail -> getRetLocation tail max
+  in
+
+  (*
   let location ctx x =
     (*print_dec_type_list ctx;*)
     let rec index k = function
       | [] -> Helper.error ~kind:"compilation error" "unknown variable %s" x
-      | V(y) :: ys
-      | F(y,_) :: ys -> if x = y then k else index (k - 1) ys
+      | V(y,true,_) :: ys -> if x = y then k else index (k - 1) ys
+      | V(y,false,_) :: ys -> if x = y then k else index (k - 1) ys
+      | F(y,_,_) :: ys -> if x = y then k else index (k - 1) ys
+      
     in
     index (List.length ctx - 1) ctx
   in
+  *)
+  
 
   (* Compile an expression in the given context [ctx]. *)
   let rec expression ctx = function
-    | Syntax.NewFunc(a, e) -> expression ctx e @ [ Callfunc a ]
+    | Syntax.NewFunc(a, e) -> [ PrepRet ] @ expression ctx e @ [ Callfunc a ]
     | Syntax.PassArgs (e1,e2)-> expression ctx e1 @ expression ctx e2
-    | Syntax.Variable x -> let k = location ctx x in [ GET k ]
-    | Syntax.ReturnVal k -> [ Return k ]
+    (*| Syntax.Variable x -> let k = location ctx x in [ GET k ]*)
+    | Syntax.Variable x -> let k = locationWithStackFrame ctx x in [ GET k ]
     | Syntax.Floating k -> [ FPUSH k ]
     | Syntax.Numeral k -> [ PUSH k ]
     
-    | Syntax.FPlus (e1, e2) -> expression ctx e1 @ expression ctx e2 @ [ FADD ]
-    | Syntax.FMinus (e1, e2) -> expression ctx e1 @ expression ctx e2 @ [ FSUB ]
-    | Syntax.FTimes (e1, e2) -> expression ctx e1 @ expression ctx e2 @ [ FMUL ]
-    | Syntax.FDivide (e1, e2) -> expression ctx e1 @ expression ctx e2 @ [ FDIV ]
-    | Syntax.Plus (e1, e2) -> expression ctx e1 @ expression ctx e2 @ [ ADD ]
-    | Syntax.Minus (e1, e2) -> expression ctx e1 @ expression ctx e2 @ [ SUB ]
-    | Syntax.Times (e1, e2) -> expression ctx e1 @ expression ctx e2 @ [ MUL ]
-    | Syntax.Divide (e1, e2) -> expression ctx e1 @ expression ctx e2 @ [ DIV ]
+    | Syntax.FPlus (e1, e2,_) -> expression ctx e1 @ expression ctx e2 @ [ FADD ]
+    | Syntax.FMinus (e1, e2,_) -> expression ctx e1 @ expression ctx e2 @ [ FSUB ]
+    | Syntax.FTimes (e1, e2,_) -> expression ctx e1 @ expression ctx e2 @ [ FMUL ]
+    | Syntax.FDivide (e1, e2,_) -> expression ctx e1 @ expression ctx e2 @ [ FDIV ]
+    | Syntax.Plus (e1, e2,_) -> expression ctx e1 @ expression ctx e2 @ [ ADD ]
+    | Syntax.Minus (e1, e2,_) -> expression ctx e1 @ expression ctx e2 @ [ SUB ]
+    | Syntax.Times (e1, e2,_) -> expression ctx e1 @ expression ctx e2 @ [ MUL ]
+    | Syntax.Divide (e1, e2,_) -> expression ctx e1 @ expression ctx e2 @ [ DIV ]
     (*
     | Syntax.FPlus (e1, e2) -> expression ctx e1 @ expression ctx e2 @ [ match e1, e2 with | Syntax.Floating _, Syntax.Floating _-> FADD |_ -> (TYPE "adicao") ]
     | Syntax.FMinus (e1, e2) -> expression ctx e1 @ expression ctx e2 @ [ match e1, e2 with | Syntax.Floating _, Syntax.Floating _-> FSUB |_ -> TYPE "subtracao"]
@@ -74,35 +109,41 @@ let compile cmd =
     | Syntax.Not b -> boolean ctx b @ [ NOT ]
   in
 
-  let rec numargs = function
-    | Syntax.Args (_, f) -> 1 + numargs f
-    | Syntax.Arg (_) -> 1
-  in
-  let rec funcargs = function 
-    | Syntax.Arg (x) -> [ V(x) ]
-    | Syntax.Args (x, f) -> V(x) :: funcargs f
-  in 
-
   (* Compile the given command in the given context [ctx]. *)
   let rec command ctx = function
-    | Syntax.Return e -> expression ctx e
+    | Syntax.Return (e, _) -> 
+      let retLoc = getRetLocation ctx 0 in 
+      let lastVarLoc = lastVarLocation ctx 0 in
+      (*
+      Printf.printf "\nret = %d\n" retLoc;
+      Printf.printf "\nlasVar = %d\n" lastVarLoc;
+      *)
+      expression ctx e @ [ Return (retLoc, retLoc - lastVarLoc + 4) ]
     | Syntax.Func (x, a, c, c2) ->
-      let ctx = (funcargs a) @ F(x, numargs a) :: ctx in
+      let ctx = (funcargs (numargs a) a) @ F(x, numargs a, 4) :: ctx in
       let c' = command ctx c in
       let c2' = command ctx c2 in
       [ FuncStart x ] @ c' @ [ FuncEnd x ] @ c2'
 
     | Syntax.New (x, e, c) ->
+      print_dec_type_list ctx;
       let e' = expression ctx e in
-      let ctx = V(x) :: ctx in
+      (*Printf.printf "new var %s, last var location %d \n" x (lastVarLocation ctx 0);*)
+      
+      let ctx = V(x, false, lastVarLocation ctx 0) :: ctx in
       let c' = command ctx c in
-      let k = location ctx x in
-      e' @ [ SET k ] @ c'
+      (*let k = location ctx x in*)
+      e' (*@ [ SET k ]*) @ c'
+
 
     | Syntax.Skip -> [ NOOP ]
-    | Syntax.Print e -> expression ctx e @ [ PRINT ]
+    | Syntax.Print e -> 
+      (*print_dec_type_list ctx;*)
+      
+      expression ctx e @ [ PRINT ]
     | Syntax.FPrint e -> expression ctx e @ [ FPRINT ]
-    | Syntax.Assign (x, e) -> expression ctx e @ [ SET (location ctx x) ]
+    (*| Syntax.Assign (x, e) -> expression ctx e @ [ SET (location ctx x) ]*)
+    | Syntax.Assign (x, e) -> print_dec_type_list ctx; expression ctx e @ [ SET (locationWithStackFrame ctx x) ]
     | Syntax.Sequence (c1, c2) -> command ctx c1 @ command ctx c2
     | Syntax.Conditional (b, c1, c2) ->
         let c1' = command ctx c1 in

@@ -22,16 +22,21 @@ Boolean expression `b`:
 * conjunction `b₁ and b₂`
 * disjunction `b₁ or b₂` 
 * negation `not b`
+* equal expressions `e1 = e2`
+* less than `e1 < e2`
 
 Command `c`:
 
 * no operation `skip`
 * local variable declaration `new x := e in c`
 * print expression `print e`
+* print float expression `print_f e`
 * assign a varible `x := e`
 * sequence commands `c₁ ; c₂`
 * loop `while b do c done`
 * conditional statement `if b then c₁ else c₂ end`
+* declare a function `new func par1, par2 ( command in return expression ) in command`
+* call a function `new var := func (par1, par2) in command`
 
 ## Build compiler
 
@@ -46,6 +51,8 @@ dune build
 ## Compilation to RV32 ISA
 
 The language is compiled to RV32 machine code. Use the `--code` command-line option to see the compiled code.
+To compile the code into web-assembly use the `--web` command-line.
+
 
 Try
 
@@ -88,24 +95,24 @@ The stack grows downards, from the top of RAM towards the bottom.
 
 ### Tasks
 
-* Estender os operadores %, e, = (dificuldade baixa) extension-operators.comm
+- [ ] Estender os operadores %, e, = (dificuldade baixa) extension-operators.comm
 
-* Extensão de floats (dificuldade média) extension-floats.comm
+- [ ] Extensão de floats (dificuldade média) extension-floats.comm
 
-* Implementar a verificação do tipo para variáveis inteiras e floats num módulo à parte (dificuldade baixa)
+- [ ] Implementar a verificação do tipo para variáveis inteiras e floats num módulo à parte (dificuldade baixa)
 
-* Compilar a linguagem comm para a linguagem de WebAssembly (dificuldade média) extension-target-language
+- [ ] Compilar a linguagem comm para a linguagem de WebAssembly (dificuldade média) extension-target-language
 
-* Estender a linguagem comm com records utilizando a noção de endereço e de campos - como vimos na aula teórica 4 (dificuldade média)
+- [ ] Estender a linguagem comm com records utilizando a noção de endereço e de campos - como vimos na aula teórica 4 (dificuldade média)
 
-* Estender a linguagem comm com funções - como vimos na aula teórica 5 (dificuldade baixa)
+- [ ] Estender a linguagem comm com funções - como vimos na aula teórica 5 (dificuldade baixa)
 
-* Estender a linguagem comm com funções anónimas e fecho lexical (dificuldade alta)
+- [ ] Estender a linguagem comm com funções anónimas e fecho lexical (dificuldade alta)
 
-* Implementar a geração de código de funções (dificuldade média)
+- [ ] Implementar a geração de código de funções (dificuldade média)
 
-* Implementar os tipos de dados abstrato (módulo) para ajuda na geração de código assembly - RV32IMF e WebAssembly (dificuldade média)
+- [ ] Implementar os tipos de dados abstrato (módulo) para ajuda na geração de código assembly - RV32IMF e WebAssembly (dificuldade média)
 
-* Formalizar o sistema de tipos da linguagem resultante comm++ (dificuldade média ou alta consoante as extensões)
+- [ ] Formalizar o sistema de tipos da linguagem resultante comm++ (dificuldade média ou alta consoante as extensões)
 
-* Utilizando a semântica formal do webassembly, mostrar a preservação semântica da linguagem comm ou comm++ (dificuldade alta)*
+- [ ] Utilizando a semântica formal do webassembly, mostrar a preservação semântica da linguagem comm ou comm++ (dificuldade alta)*

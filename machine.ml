@@ -31,7 +31,9 @@ type instruction =
   | FuncStart of string
   | FuncEnd of string
   | Callfunc of string
-  | Return of int
+  | Return of int * int
+  | PrepRet
+
 (** Print an instruction. *)
 
 let print_instruction_web instr k0 ppf =
@@ -43,8 +45,11 @@ let print_instruction_rv32 instr k0 ppf =
   match instr with
   | TYPE _ -> ()
   | NOOP -> Format.fprintf ppf "addi t0, t0, 0 #NOP"
-  | SET k -> Format.fprintf ppf "lw s%d, 0(sp)\naddi sp, sp, 4 #SET %d" k k
-  | GET k -> Format.fprintf ppf "addi sp, sp, -4\nsw s%d, 0(sp) #GET %d" k k
+  | SET k -> Format.fprintf ppf "lw t1, 0(sp)\nsw t1, %d(s0) #SET %d \naddi sp, sp, 4" (k) (k)
+  (*| GET k -> Format.fprintf ppf "addi sp, sp, -4\nsw s%d, 0(sp) #GET %d" k k*)
+  | GET k -> Format.fprintf ppf "lw t1, %d(s0) #GET %d\n\
+                                 addi sp, sp, -4\n\
+                                 sw t1, 0(sp)" (k) (k)
   | FPUSH k -> Format.fprintf ppf "addi sp, sp, -4\nli t1, %s\nfmv.s.x fa1, t1\nfsw fa1, 0(sp) #FPUSH %f" (Int32.to_string(Int32.bits_of_float(k))) k
   | PUSH k -> Format.fprintf ppf "addi sp, sp, -4\nli t1, %d\nsw t1, 0(sp) #PUSH %d" k k
   | ADD -> Format.fprintf ppf
@@ -124,14 +129,14 @@ let print_instruction_rv32 instr k0 ppf =
   | AND -> Format.fprintf ppf 
         "mul t3, t1, t2\n\
         sw t3, 0(sp) # AND"
-  | EQ -> Format.fprintf ppf "
-        lw t2, 0(sp)
-        addi sp, sp, 4
-        lw t1, 0(sp)
-        addi sp, sp, 4
-        sub t3,t1,t2
-        seqz t3, t3
-        addi sp, sp, -4
+  | EQ -> Format.fprintf ppf 
+        "lw t2, 0(sp)\n\
+        addi sp, sp, 4\n\
+        lw t1, 0(sp)\n\
+        addi sp, sp, 4\n\
+        sub t3,t1,t2\n\
+        seqz t3, t3\n\
+        addi sp, sp, -4\n\
         sw t3, 0(sp) # EQ"
   | LT -> Format.fprintf ppf
         "lw t1, 0(sp)\n\
@@ -144,20 +149,31 @@ let print_instruction_rv32 instr k0 ppf =
   | OR -> Format.fprintf ppf "# OR"
   | NOT -> Format.fprintf ppf "# NOT"
   | JMP k -> Format.fprintf ppf "jal t3, l%03d # JMP" (k0 + k + 1)
-  | JMPZ k ->
-      Format.fprintf ppf
-        "lw t3, 0(sp)\naddi sp, sp, 4\nli t1, 0\nbeq t3, t1, l%03d # JMPZ"
-        (k0 + k + 1)
-  | PRINT ->
-      Format.fprintf ppf "lw a0, 0(sp)\naddi sp, sp, 4\nli a7, 1\necall # PRINT"
+  | JMPZ k -> Format.fprintf ppf "lw t3, 0(sp)\naddi sp, sp, 4\nli t1, 0\nbeq t3, t1, l%03d # JMPZ" (k0 + k + 1)
+  | PRINT -> Format.fprintf ppf "lw a0, 0(sp)\naddi sp, sp, 4\nli a7, 1\necall # PRINT"
   | FPRINT -> Format.fprintf ppf "flw fa0, 0(sp)\naddi sp, sp, 4\nli a7, 2\necall # FPRINT"
-  | FuncStart name -> Format.fprintf ppf "j %s_end \n%s: # FUNCSTART" name name
+  | FuncStart name -> Format.fprintf ppf 
+    "j %s_end \n\
+    %s: \n\
+    sw ra, 4(s0) # FUNCSTART" name name
   | FuncEnd name -> Format.fprintf ppf "ret \n%s_end: # FUNCEND" name
-  | Callfunc name -> Format.fprintf ppf "call %s # CALLFUNC" name
-  | Return k -> Format.fprintf ppf "addi sp, sp, -4\nsw s%d, 0(sp) #RETURN %d" k k
+  | Callfunc name -> Format.fprintf ppf 
+    "addi sp, sp, -8 \n\
+     sw s0, 0(sp) \n\
+     mv s0, sp \n\
+     call %s # CALLFUNC" name
+  | Return (ret, sp) -> Format.fprintf ppf 
+    "addi sp, sp, -4\n\
+     sw t1, %d(s0)\n\
+     lw ra, 4(s0)\n\
+     lw s0, 0(s0)\n\
+     addi sp, sp, %d #RETURN " ret sp
+  | PrepRet -> Format.fprintf ppf "addi sp, sp, -4\nsw s%d, 0(sp) #RETURN %d" 0 0
+
 
 (** Machine errors *)
 type error = Illegal_address | Illegal_instruction | Zero_division
+
 
 (** Print a machine error *)
 let print_error err ppf =
@@ -173,6 +189,7 @@ let runtime_error err = raise (Error err)
 
 (** Print the program *)
 let print_code code ppf =
+  Format.fprintf ppf "mv s0, sp \nsw s0, 0(sp) #START\n";
   Array.iteri
     (fun k instr ->
       Format.fprintf ppf "l%03d:\n%t@\n" k (print_instruction_rv32 instr k))
@@ -299,6 +316,7 @@ let exec s =
   | FuncEnd _ 
   | Callfunc _
   | Return _ -> ()
+  | PrepRet -> ()
 
 (** In given state [s], run the program. *)
 let run s =

@@ -51,8 +51,9 @@ funcarg:
   | x=VARIABLE PARAMETERCOMMA f=funcarg { Syntax.Args (x, f) }
   | x=VARIABLE                          { Syntax.Arg x }
 
+
 command:
-  | RETURN e=expression                                            { Syntax.Return e}
+  | RETURN e=expression                                            { Syntax.Return(e,$loc)}
   | NEW x=VARIABLE p=funcarg LPAREN c=command RPAREN IN c2=command { Syntax.Func(x, p, c, c2) }
   | SKIP                                                           { Syntax.Skip }
   | NEW x=VARIABLE ASSIGN e=expression IN c=command                { Syntax.New(x, e, c) }
@@ -70,14 +71,14 @@ expression:
   | x=VARIABLE                            { Syntax.Variable x }
   | f=FLOATING                            { Syntax.Floating f }
   | n=NUMERAL                             { Syntax.Numeral n }
-  | e1=expression FTIMES  e2=expression   { Syntax.FTimes (e1, e2) }
-  | e1=expression FPLUS   e2=expression   { Syntax.FPlus (e1, e2) }
-  | e1=expression FMINUS  e2=expression   { Syntax.FMinus (e1, e2) }
-  | e1=expression FDIVIDE e2=expression   { Syntax.FDivide (e1, e2) }
-  | e1=expression TIMES  e2=expression    { Syntax.Times (e1, e2) }
-  | e1=expression PLUS   e2=expression    { Syntax.Plus (e1, e2) }
-  | e1=expression MINUS  e2=expression    { Syntax.Minus (e1, e2) }
-  | e1=expression DIVIDE e2=expression    { Syntax.Divide (e1, e2) }
+  | e1=expression FTIMES  e2=expression   { Syntax.FTimes (e1, e2, $loc) }
+  | e1=expression FPLUS   e2=expression   { Syntax.FPlus (e1, e2, $loc) }
+  | e1=expression FMINUS  e2=expression   { Syntax.FMinus (e1, e2, $loc) }
+  | e1=expression FDIVIDE e2=expression   { Syntax.FDivide (e1, e2, $loc) }
+  | e1=expression TIMES  e2=expression    { Syntax.Times (e1, e2, $loc) }
+  | e1=expression PLUS   e2=expression    { Syntax.Plus (e1, e2, $loc) }
+  | e1=expression MINUS  e2=expression    { Syntax.Minus (e1, e2, $loc) }
+  | e1=expression DIVIDE e2=expression    { Syntax.Divide (e1, e2, $loc) }
   | e1=expression REMAINDER e2=expression { Syntax.Remainder (e1, e2) }
   | LPAREN e = expression RPAREN          { e }
 

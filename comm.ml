@@ -39,9 +39,10 @@ module CalcVar = Helper.Main (struct
       ignore, a flag indicating whether we are in ineractive mode, an environment, and a
       command to be excuted. *)
   let exec _ cmd =
+    let _ = Typecheck.compile cmd in
     let code = Compile.compile cmd in
     if !show_code then Format.printf "%t@." (Machine.print_code code);
-    if !show_code then Format.printf "%t@." (Machine.print_code_web code);
+    if !show_code_web then Format.printf "%t@." (Machine.print_code_web code);
     if !execute_code then
       let state = Machine.make code !ram_size in
       try Machine.run state

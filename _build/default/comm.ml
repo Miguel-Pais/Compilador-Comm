@@ -12,7 +12,7 @@ module CalcVar = Helper.Main (struct
   let show_code = ref false
   let show_code_web = ref false
 
-  
+
   (** RAM size *)
   let ram_size = ref 64
 
@@ -26,7 +26,7 @@ module CalcVar = Helper.Main (struct
         Format.sprintf "<size> RAM size (default: %d)" !ram_size );
       ("--execute", Arg.Set execute_code, " Execute compiled code");
       ("--code", Arg.Set show_code, " Print compiled code");
-      ("--web", Arg.Set show_code_web, "Print compiled code")
+      ("--web", Arg.Set show_code_web, "Print compiled code in web assembly")
     ]
 
   (** At the beginning no variables are defined. *)
@@ -39,9 +39,10 @@ module CalcVar = Helper.Main (struct
       ignore, a flag indicating whether we are in ineractive mode, an environment, and a
       command to be excuted. *)
   let exec _ cmd =
+    let _ = Typecheck.compile cmd in
     let code = Compile.compile cmd in
     if !show_code then Format.printf "%t@." (Machine.print_code code);
-    if !show_code then Format.printf "%t@." (Machine.print_code_web code);
+    if !show_code_web then Format.printf "%t@." (Machine.print_code_web code);
     if !execute_code then
       let state = Machine.make code !ram_size in
       try Machine.run state

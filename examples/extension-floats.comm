@@ -4,13 +4,11 @@
 new pi_approx := 0. in
 new denom := 1. in
 new sign := 1. in
-new iterations := 10000 in  # Increase for a better approximation
+new iterations := 50 in  # Increase for a better approximation
 new i := 0 in
-
 
 while i < iterations do
   pi_approx := pi_approx +. sign *. (1. /. denom);
-  #print_f pi_approx;
   denom := denom +. 2.;
   sign := sign *. (-1.);
   i := i + 1

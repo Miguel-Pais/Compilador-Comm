@@ -1,27 +1,34 @@
 (** Abstract syntax. *)
 
+type loc = Lexing.position * Lexing.position
+
+
 (** Function Arguments. *)
 type funcargs =
   | Args of string * funcargs
   | Arg of string
 
+
 (** Arithmetical expressions. *)
 type expression =
   | NewFunc of string * expression 
   | PassArgs of expression * expression
-  | Variable of string (* a variable *)
-  | ReturnVal of int
-  | Floating of float (* float *)
-  | Numeral of int (* integer constant *)
-  | FPlus of expression * expression (* addition [e1 +. e2] *)
-  | FMinus of expression * expression (* difference [e1 -. e2] *)
-  | FTimes of expression * expression (* product [e1 *. e2] *)
-  | FDivide of expression * expression (* quotient [e1 /. e2] *)
-  | Plus of expression * expression (* addition [e1 + e2] *)
-  | Minus of expression * expression (* difference [e1 - e2] *)
-  | Times of expression * expression (* product [e1 * e2] *)
-  | Divide of expression * expression (* quotient [e1 / e2] *)
-  | Remainder of expression * expression (* remainder [e1 % e2] *)
+  | Variable of string                         (* a variable *)
+  | Floating of float                          (* float *)
+  | Numeral of int                             (* integer constant *)
+  | FPlus of expression * expression * loc     (* addition [e1 +. e2] *)
+  | FMinus of expression * expression * loc    (* difference [e1 -. e2] *)
+  | FTimes of expression * expression * loc    (* product [e1 *. e2] *)
+  | FDivide of expression * expression * loc   (* quotient [e1 /. e2] *)
+  | Plus of expression * expression * loc      (* addition [e1 + e2] *)
+  | Minus of expression * expression * loc     (* difference [e1 - e2] *)
+  | Times of expression * expression * loc     (* product [e1 * e2] *)
+  | Divide of expression * expression * loc    (* quotient [e1 / e2] *)
+  | Remainder of expression * expression       (* remainder [e1 % e2] *)
+
+
+type expression_decorated = expression * loc
+
 
 (** Boolean expressions. *)
 type boolean =
@@ -32,6 +39,7 @@ type boolean =
   | And of boolean * boolean (* conjunction [b1 and b2] *)
   | Or of boolean * boolean (* disjunction [b1 or b2] *)
   | Not of boolean (* negation [not b] *)
+
 
 (** Commands. *)
 type command =
@@ -44,4 +52,4 @@ type command =
   | Sequence of command * command (* sequence commands [c1 ; c2] *)
   | While of boolean * command (* loop [while b do c done] *)
   | Conditional of boolean * command * command (* conditional [if b then c1 else c2 end] *)
-  | Return of expression
+  | Return of expression_decorated

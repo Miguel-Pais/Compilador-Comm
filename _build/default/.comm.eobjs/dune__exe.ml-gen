@@ -20,3 +20,6 @@ module Parser = Dune__exe__Parser
 
 (** @canonical Dune__exe.Syntax *)
 module Syntax = Dune__exe__Syntax
+
+(** @canonical Dune__exe.Typecheck *)
+module Typecheck = Dune__exe__Typecheck

@@ -4,5 +4,94 @@ dune build
 _build/default/comm.exe --execute examples/extension-function.comm
 _build/default/comm.exe --code examples/extension-function.comm
 
+ficheiro dune
+```
+(rule
+ (with-outputs-to
+  test01.out
+  (with-accepted-exit-codes
+   0
+   (run bash -c "%{exe:../comm.exe} --execute %{dep:test01.in}"))))
+
+(rule
+ (alias runtest)
+ (action
+  (diff test01.exp test01.out)))
+```
+
+
+
 verificaçao de tipo
 extençao para funcçoes
+
+15 minutos apresentaçao do que ja tmeos feito
+
+new add a , b
+(
+new c := a + b in
+print c
+) in
+
+new num := add (100, 5) in 
+print num
+
+new add a , b
+(
+new c := a + b in
+return c
+) in
+
+new num := add (100, 5) in 
+print num
+
+
+new a := 1 in
+new b := 2 in
+new c := a + b in
+print c
+
+
+
+new num := 1 in 
+print num;
+new num2 := 2 in
+print num2
+
+
+
+
+new add a , b
+(
+new c := a + b in
+return c
+) in
+
+new mul a , b
+(
+new temp := 1 in
+new c := a * add (100,4) in
+return c
+) in
+
+new num := mul (100, 5) in 
+print num
+
+
+
+new fibb num
+(
+    new ret_val := 0 in
+    if num = 0 then ret_val := 0 
+    else 
+        if num = 1 then ret_val := 1
+        else 
+        new temp := num - 1 in
+        new temp2 := num - 2 in
+        ret_val := fibb (temp) + fibb (temp)
+        end
+    end;
+    return ret_val
+)
+in
+new num := fibb (5) in 
+print num

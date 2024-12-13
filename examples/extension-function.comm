@@ -1,9 +1,15 @@
 new add a , b
 (
 new c := a + b in
-print c
+return c
 ) in
 
-new num := add (100, 5) in 
-print num
+new func a , b
+(
+new temp := 1 in
+new c := a * add (100,4) in
+return c
+) in
 
+new num := func (100, 5) in 
+print num
