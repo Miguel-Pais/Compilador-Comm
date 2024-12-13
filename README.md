@@ -101,7 +101,7 @@ The stack grows downards, from the top of RAM towards the bottom.
 
 - [x] Implementar a verificação do tipo para variáveis inteiras e floats num módulo à parte (dificuldade baixa)
 
-- [&check;] Compilar a linguagem comm para a linguagem de WebAssembly (dificuldade média) extension-target-language
+- [x] | POR REVER | Compilar a linguagem comm para a linguagem de WebAssembly (dificuldade média) extension-target-language
 
 - [ ] Estender a linguagem comm com records utilizando a noção de endereço e de campos - como vimos na aula teórica 4 (dificuldade média)
 
