@@ -6,14 +6,19 @@ Comm programs are compiled for RV32IM ISA.
 
 ## Abstract syntax
 
-Integer expression `e`:
+Expression `e`:
 
 * variable (a string of letters)
 * integer constant
-* addition `e₁ + e₂`
-* subtraction `e₁ - e₂`
-* multiplication `e₁ * e₂`
+* floating constant
+* integer addition `e₁ + e₂`
+* integer subtraction `e₁ - e₂`
+* integer multiplication `e₁ * e₂`
 * integer division `e₁ / e₂`
+* floating addition `e₁ +. e₂`
+* floating subtraction `e₁ -. e₂`
+* floating multiplication `e₁ *. e₂`
+* floating division `e₁ /. e₂`
 * remainder `e₁ % e₂`
 
 Boolean expression `b`:
