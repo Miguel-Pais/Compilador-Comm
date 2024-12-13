@@ -56,8 +56,7 @@ dune build
 ## Compilation to RV32 ISA
 
 The language is compiled to RV32 machine code. Use the `--code` command-line option to see the compiled code.
-To compile the code into web-assembly use the `--web` command-line.
-
+The language can be compiled to web-assembly code. Use the `--web` command-line option to see the web-assembly compiled code.
 
 Try
 
@@ -66,6 +65,15 @@ _build/default/comm.exe --code examples/example1.comm
 ```
 
 The underlying code runs in RARS. The stack grows upwards, from the bottom of RAM to the top.
+
+
+OR
+
+```
+_build/default/comm.exe --web examples/example1.comm
+```
+for a web-assembly version
+
 
 ## Emulation
 
