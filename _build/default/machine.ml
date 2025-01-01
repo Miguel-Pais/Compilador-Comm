@@ -433,7 +433,7 @@ let print_code_web code ppf =
     (local.set $s0 (local.get $sp))\n";
   Array.iteri
     (fun k instr ->
-      Format.fprintf ppf ";;l%03d:\n%t@\n" k (print_instruction_web instr k))
+      Format.fprintf ppf "(loop $l%03d:\n%t@\n)\n" k (print_instruction_web instr k))
     code;
   Format.fprintf ppf ")(start $main))"
 
