@@ -4,6 +4,10 @@ dune build
 _build/default/comm.exe --execute examples/extension-function.comm
 _build/default/comm.exe --code examples/extension-function.comm
 
+
+(local $t0 i32) ;; Stack pointer \n
+
+
 ficheiro dune
 ```
 (rule

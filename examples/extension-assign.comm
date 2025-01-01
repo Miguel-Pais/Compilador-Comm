@@ -1,9 +1,2 @@
-new pi := 3. in
-new ba := 7. in
-new iter := 1 in
-while iter < 10 do
-pi := pi +. ba;
-print_f pi;
-iter := iter + 1
-done;
-skip
+new b := 1000 in 
+print b
