@@ -1,2 +1,8 @@
-new b := 1000 in 
-print b
+new b := 1000 + 10 in 
+print b;
+new b2 := 1000 - 10 in 
+print b2;
+new b3 := 1000 / 10 in 
+print b3;
+new b4 := 1000 * 10 in 
+print b4
