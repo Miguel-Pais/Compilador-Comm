@@ -41,17 +41,15 @@ let print_instruction_web instr k0 ppf =
   match instr with
 
   | NOOP -> Format.fprintf ppf
-    "(func $noop  \n
-      (nop) ;;  \n
-      )"
+    ";;NOOP"
   | GET k -> Format.fprintf ppf (*nova*)
     "(local.set $s0 (i32.add (local.get $s0) (i32.const -%d)))\n\
     (local.set $t1 (i32.load (local.get $s0)))\n\
     (local.set $s0 (i32.add (local.get $s0) (i32.const %d)))\n\
     (local.set $sp (i32.add (local.get $sp) (i32.const -4)))\n\
-    (i32.store (local.get $sp) (local.get $t1))\n ;; GET " (-k) (-k)
+    (i32.store (local.get $sp) (local.get $t1)) ;; GET \n" (-k) (-k)
   | FPUSH k -> Format.fprintf ppf (*nova*)
-    "(local.set $sp (f32.add (local.get $sp) (f32.const -4)))\n\
+    "(local.set $sp (i32.add (local.get $sp) (f32.const -4)))\n\
     (local.set $t1 (f32.const %f))\n\
     (f32.store (local.get $sp) (local.get $t1)) ;; PUSH\n" k 
   | SET k -> Format.fprintf ppf (*nova*)
@@ -101,145 +99,69 @@ let print_instruction_web instr k0 ppf =
     (local.set $t2 (i32.rem_u (local.get $t0) (local.get $t1)))\n\
     (local.set $sp (i32.add (local.get $sp) (i32.const -4)))\n\
     (i32.store (local.get $sp) (local.get $t2)) ;; ADD\n"
-  | AND -> Format.fprintf ppf   (*nova/por acabar*)
-    "
-    (local.set $t2 (i32.and (local.get $t0) (local.get $t1)))\n
-    "
-  | OR -> Format.fprintf ppf (*nova/por acabar*)
-    "
-    (local.set $t2 (i32.or (local.get $t0) (local.get $t1)))\n
-    "
-
-  | EQ -> Format.fprintf ppf (*nova*)
-    "(local.set $sp (i32.sub (local.get $sp) (i32.const 4))) \n
-    (i32.store (local.get $sp) (local.get $t0))             \n
-
-    (local.set $sp (i32.sub (local.get $sp) (i32.const 4))) \n
-    (i32.store (local.get $sp) (local.get $t1))             \n
-
-    (local.set $t1 (i32.load (local.get $sp)))              \n
-    (local.set $sp (i32.add (local.get $sp) (i32.const 4))) \n
-
-    (local.set $t0 (i32.load (local.get $sp)))              \n
-    (local.set $sp (i32.add (local.get $sp) (i32.const 4))) \n
-
-    (local.set $t2 (i32.eq (local.get $t0) (local.get $t1))) \n
-    "
-
-  | LT -> Format.fprintf ppf (*nova*)
-    "(local.set $sp (f32.sub (local.get $sp) (f32.const 4))) \n
-    (f32.store (local.get $sp) (local.get $t0))             \n
-
-    (local.set $sp (f32.sub (local.get $sp) (f32.const 4))) \n
-    (f32.store (local.get $sp) (local.get $t1))             \n
-
-    (local.set $t1 (f32.load (local.get $sp)))              \n
-    (local.set $sp (f32.add (local.get $sp) (f32.const 4))) \n
-
-    (local.set $t0 (f32.load (local.get $sp)))              \n
-    (local.set $sp (f32.add (local.get $sp) (f32.const 4))) \n
-
-    (local.set $t2 (i32.lt_u (local.get $t0) (local.get $t1))) \n
-    "
-
-  | NOT -> Format.fprintf ppf (*nova*)
-    "(local.set $sp (f32.sub (local.get $sp) (f32.const 4))) \n
-    (f32.store (local.get $sp) (local.get $t0))             \n
-
-    (local.set $sp (f32.sub (local.get $sp) (f32.const 4))) \n
-    (f32.store (local.get $sp) (local.get $t1))             \n
-
-    (local.set $t1 (f32.load (local.get $sp)))              \n
-    (local.set $sp (f32.add (local.get $sp) (f32.const 4))) \n
-
-    (local.set $t0 (f32.load (local.get $sp)))              \n
-    (local.set $sp (f32.add (local.get $sp) (f32.const 4))) \n
-
-    (local.set $t2 (i32.ne (local.get $t0) (local.get $t1))) \n
-    "
-
+  | AND -> Format.fprintf ppf ";;AND"
+  | OR -> Format.fprintf ppf ";;OR"
+  | EQ -> Format.fprintf ppf ";;EQ"
+  | LT -> Format.fprintf ppf "
+    (local.set $t1 (i32.load (local.get $sp)))\n\
+    (local.set $sp (i32.add (local.get $sp) (i32.const 4)))\n\
+    (local.set $t0 (i32.load (local.get $sp)))\n\
+    (local.set $sp (i32.add (local.get $sp) (i32.const 4)))\n\
+    local.get $t0\n\
+    local.get $t1\n\
+    i32.lt_u\n\
+    local.set $t2\n\
+    (local.set $sp (i32.add (local.get $sp) (i32.const -4)))\n\
+    (i32.store (local.get $sp) (local.get $t2)) ;; LT\n"
+  | NOT -> Format.fprintf ppf ";;NOT"
   | FADD -> Format.fprintf ppf (*nova*)
-    "(local.set $sp (f32.sub (local.get $sp) (f32.const 4))) \n
-    (f32.store (local.get $sp) (local.get $t0))             \n
-
-    (local.set $sp (f32.sub (local.get $sp) (f32.const 4))) \n
-    (f32.store (local.get $sp) (local.get $t1))             \n
-
-    (local.set $t1 (f32.load (local.get $sp)))              \n
-    (local.set $sp (f32.add (local.get $sp) (f32.const 4))) \n
-
-    (local.set $t0 (f32.load (local.get $sp)))              \n
-    (local.set $sp (f32.add (local.get $sp) (f32.const 4))) \n
-
-    (local.set $t2 (f32.add (local.get $t0) (local.get $t1))) \n
-  "
+    "(local.set $f1 (i32.load (local.get $sp)))\n\
+    (local.set $sp (i32.add (local.get $sp) (i32.const 4)))\n\
+    (local.set $f0 (i32.load (local.get $sp)))\n\
+    (local.set $sp (i32.add (local.get $sp) (i32.const 4)))\n\
+    (local.set $f2 (f32.add (local.get $f0) (local.get $f1)))\n\
+    (local.set $sp (i32.add (local.get $sp) (i32.const -4)))\n\
+    (i32.store (local.get $sp) (local.get $f2)) ;; FADD\n"
   | FSUB -> Format.fprintf ppf (*nova*)
-    "(local.set $sp (f32.sub (local.get $sp) (f32.const 4))) \n
-    (f32.store (local.get $sp) (local.get $t0))             \n
-
-    (local.set $sp (f32.sub (local.get $sp) (f32.const 4))) \n
-    (f32.store (local.get $sp) (local.get $t1))             \n
-
-    (local.set $t1 (f32.load (local.get $sp)))              \n
-    (local.set $sp (f32.add (local.get $sp) (f32.const 4))) \n
-
-    (local.set $t0 (f32.load (local.get $sp)))              \n
-    (local.set $sp (f32.add (local.get $sp) (f32.const 4))) \n
-
-    (local.set $t2 (f32.sub (local.get $t0) (local.get $t1))) \n
-  "
+    "(local.set $f1 (i32.load (local.get $sp)))\n\
+    (local.set $sp (i32.add (local.get $sp) (i32.const 4)))\n\
+    (local.set $f0 (i32.load (local.get $sp)))\n\
+    (local.set $sp (i32.add (local.get $sp) (i32.const 4)))\n\
+    (local.set $f2 (f32.sub (local.get $f0) (local.get $f1)))\n\
+    (local.set $sp (i32.add (local.get $sp) (i32.const -4)))\n\
+    (i32.store (local.get $sp) (local.get $f2)) ;; FSUB\n"
   | FMUL -> Format.fprintf ppf (*nova*)
-    "(local.set $sp (f32.sub (local.get $sp) (f32.const 4))) \n
-    (f32.store (local.get $sp) (local.get $t0))             \n
-
-    (local.set $sp (f32.sub (local.get $sp) (f32.const 4))) \n
-    (f32.store (local.get $sp) (local.get $t1))             \n
-
-    (local.set $t1 (f32.load (local.get $sp)))              \n
-    (local.set $sp (f32.add (local.get $sp) (f32.const 4))) \n
-
-    (local.set $t0 (f32.load (local.get $sp)))              \n
-    (local.set $sp (f32.add (local.get $sp) (f32.const 4))) \n
-
-    (local.set $t2 (f32.mull (local.get $t0) (local.get $t1))) \n
-  "
+    "(local.set $f1 (i32.load (local.get $sp)))\n\
+    (local.set $sp (i32.add (local.get $sp) (i32.const 4)))\n\
+    (local.set $f0 (i32.load (local.get $sp)))\n\
+    (local.set $sp (i32.add (local.get $sp) (i32.const 4)))\n\
+    (local.set $f2 (f32.mull (local.get $f0) (local.get $f1)))\n\
+    (local.set $sp (i32.add (local.get $sp) (i32.const -4)))\n\
+    (i32.store (local.get $sp) (local.get $f2)) ;; FMUL\n"
   | FDIV -> Format.fprintf ppf (*nova*)
-    "(local.set $sp (f32.sub (local.get $sp) (f32.const 4))) \n
-    (f32.store (local.get $sp) (local.get $t0))             \n
+    "(local.set $f1 (i32.load (local.get $sp)))\n\
+    (local.set $sp (i32.add (local.get $sp) (i32.const 4)))\n\
+    (local.set $f0 (i32.load (local.get $sp)))\n\
+    (local.set $sp (i32.add (local.get $sp) (i32.const 4)))\n\
+    (local.set $f2 (f32.div (local.get $f0) (local.get $f1)))\n\
+    (local.set $sp (i32.add (local.get $sp) (i32.const -4)))\n\
+    (i32.store (local.get $sp) (local.get $f2)) ;; FDIV\n"
 
-    (local.set $sp (f32.sub (local.get $sp) (f32.const 4))) \n
-    (f32.store (local.get $sp) (local.get $t1))             \n
+  | JMP k -> Format.fprintf ppf "br $l%03d ;; JMP\n " (k0 + k + 1)
 
-    (local.set $t1 (f32.load (local.get $sp)))              \n
-    (local.set $sp (f32.add (local.get $sp) (f32.const 4))) \n
-
-    (local.set $t0 (f32.load (local.get $sp)))              \n
-    (local.set $sp (f32.add (local.get $sp) (f32.const 4))) \n
-
-    (local.set $t2 (f32.div (local.get $t0) (local.get $t1))) \n
-  "
-
-    | JMP k -> Format.fprintf ppf 
-    "(func $jmp (param $offset i32)
-    block
-      local.get $offset
-      br 0          
-    end
-    );;%d " k
-    
-    | JMPZ k -> Format.fprintf ppf 
-    "(func $jmpz (param $offset i32)
-  
-    local.get $offset
-    if                
-      br 0            
-    end
-    );;%d " k
+  | JMPZ k -> Format.fprintf ppf 
+    " 
+    (local.set $t3 (i32.load (local.get $sp)))
+    (local.set $sp (i32.add (local.get $sp) (i32.const 4)))\n\
+    local.get $t3\n\
+    i32.const 0\n\
+    i32.eq\n\
+    br_if $l%03d ;; JMPZ\n" (k0 + k + 1)
 
   | PRINT ->Format.fprintf ppf 
     "(local.set $t1 (i32.load (local.get $sp)))\n\
     (local.set $sp (i32.add (local.get $sp) (i32.const 4)))\n\
-    (call $print (local.get $t1)) ;; Print result\n"
+    (call $print (local.get $t1)) ;; PRINT\n"
     
     (*| TYPE of string
     | FuncStart of string
@@ -255,8 +177,8 @@ let print_instruction_rv32 instr k0 ppf =
   | TYPE _ -> ()
   | NOOP -> Format.fprintf ppf "addi t0, t0, 0 #NOP"
   | SET k -> Format.fprintf ppf 
-    "lw t1, 0(sp)\nsw t1,
-    %d(s0) #SET %d \n
+    "lw t1, 0(sp)\n\
+    sw t1,%d(s0) #SET %d \n\
     addi sp, sp, 4" (k) (k)
   (*| GET k -> Format.fprintf ppf "addi sp, sp, -4\nsw s%d, 0(sp) #GET %d" k k*)
   | GET k -> Format.fprintf ppf "lw t1, %d(s0) #GET %d\n\
@@ -264,8 +186,8 @@ let print_instruction_rv32 instr k0 ppf =
                                  sw t1, 0(sp)" (k) (k)
   | FPUSH k -> Format.fprintf ppf "addi sp, sp, -4\nli t1, %s\nfmv.s.x fa1, t1\nfsw fa1, 0(sp) #FPUSH %f" (Int32.to_string(Int32.bits_of_float(k))) k
   | PUSH k -> Format.fprintf ppf 
-    "addi sp, sp, -4\n
-    li t1, %d\n
+    "addi sp, sp, -4\n\
+    li t1, %d\n\
     sw t1, 0(sp) #PUSH %d" k k
   | ADD -> Format.fprintf ppf
         "lw t1, 0(sp)\n\
@@ -421,6 +343,11 @@ let print_code_web code ppf =
     (local $t0 i32)
     (local $t1 i32)
     (local $t2 i32)
+    (local $t3 i32)    
+    (local $f0 i32)
+    (local $f1 i32)
+    (local $f2 i32)
+    (local $f3 i32)
     (local $s0 i32)
     (local $s1 i32)
     (local $s2 i32)
@@ -433,7 +360,7 @@ let print_code_web code ppf =
     (local.set $s0 (local.get $sp))\n";
   Array.iteri
     (fun k instr ->
-      Format.fprintf ppf "(loop $l%03d:\n%t@\n)\n" k (print_instruction_web instr k))
+      Format.fprintf ppf "(block $l%03d\n%t@\n)\n" k (print_instruction_web instr k))
     code;
   Format.fprintf ppf ")(start $main))"
 

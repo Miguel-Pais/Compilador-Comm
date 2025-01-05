@@ -21,7 +21,7 @@ let print_type_error_at_pos (x : Lexing.position)=
   Printf.printf "Type error in file %s, row: %d | column: %d\n" x.pos_fname x.pos_lnum (x.pos_cnum-x.pos_bol) 
 
 
-  let compile cmd =
+let compile cmd =
   (* We keep around a context, which is a list of currently valid variables,
      with more recently declared variables at the beginning of the list. *)
 
@@ -49,8 +49,8 @@ let print_type_error_at_pos (x : Lexing.position)=
   in
 
   let rec funcargs numargs = function 
-    | Syntax.Arg (x) -> Printf.printf "Arg\n"; [ V(x,true, numargs * 4 + 4, true) ]
-    | Syntax.Args (x, f) -> Printf.printf "Args\n"; V(x,true, numargs * + 4 + 4, true) :: funcargs (numargs-1) f
+    | Syntax.Arg (x) -> [ V(x,true, numargs * 4 + 4, false) ]
+    | Syntax.Args (x, f) -> V(x,true, numargs * + 4 + 4, false) :: funcargs (numargs-1) f
   in 
 
   let rec lastVarLocation ctx counter =
@@ -101,7 +101,7 @@ let print_type_error_at_pos (x : Lexing.position)=
         then (Printf.printf "This function expected %d arguments but received %d instead\n" numArgsInFunc numCallArgsInFunc) 
         else ()) 
       in [ PrepRet ] @ expression ctx e @ [ Callfunc a ]
-    | Syntax.PassArgs (e1,e2) -> Printf.printf "PassArgs\n"; expression ctx e1 @ expression ctx e2
+    | Syntax.PassArgs (e1,e2) -> expression ctx e1 @ expression ctx e2
     (*| Syntax.Variable x -> let k = location ctx x in [ GET k ]*)
     | Syntax.Variable x -> let k = locationWithStackFrame ctx x in [ GET k ]
     | Syntax.Floating k -> [ FPUSH k ]

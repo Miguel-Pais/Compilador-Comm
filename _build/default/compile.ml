@@ -126,7 +126,7 @@ let compile cmd =
       [ FuncStart x ] @ c' @ [ FuncEnd x ] @ c2'
 
     | Syntax.New (x, e, c) ->
-      print_dec_type_list ctx;
+      (*print_dec_type_list ctx;*)
       let e' = expression ctx e in
       (*Printf.printf "new var %s, last var location %d \n" x (lastVarLocation ctx 0);*)
       
@@ -143,7 +143,7 @@ let compile cmd =
       expression ctx e @ [ PRINT ]
     | Syntax.FPrint e -> expression ctx e @ [ FPRINT ]
     (*| Syntax.Assign (x, e) -> expression ctx e @ [ SET (location ctx x) ]*)
-    | Syntax.Assign (x, e) -> print_dec_type_list ctx; expression ctx e @ [ SET (locationWithStackFrame ctx x) ]
+    | Syntax.Assign (x, e) -> (*print_dec_type_list ctx;*) expression ctx e @ [ SET (locationWithStackFrame ctx x) ]
     | Syntax.Sequence (c1, c2) -> command ctx c1 @ command ctx c2
     | Syntax.Conditional (b, c1, c2) ->
         let c1' = command ctx c1 in

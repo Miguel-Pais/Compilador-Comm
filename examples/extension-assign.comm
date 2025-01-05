@@ -1,8 +1,8 @@
-new b := 1000 + 10 in 
+new b := 172064 + 1123 in 
 print b;
-new b2 := 1000 - 10 in 
+new b1 := 172064 - 1123 in 
+print b1;
+new b2 := 172064 / 1123 in 
 print b2;
-new b3 := 1000 / 10 in 
-print b3;
-new b4 := 1000 * 10 in 
-print b4
+new b3 := 172064 * 1123 in 
+print b3

@@ -1,6 +1,7 @@
 #
 # this code is for reference extension of floats (average difficulty)
 #
+
 new pi_approx := 0. in
 new denom := 1. in
 new sign := 1. in

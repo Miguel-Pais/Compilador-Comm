@@ -1,15 +1,21 @@
 new add a , b
 (
-new c := a + b in
-return c
+    new c := a + b in
+    return c
+) in
+
+new mul a , b 
+(
+    new c := a * b in
+    return c
 ) in
 
 new func a , b
 (
-new temp := 1 in
-new c := a * add (100,4) in
-return c
+    new temp := 30 in
+    new c := mul(a,add (temp,b)) in
+    return c
 ) in
 
-new num := func (100, 5) in 
+new num := func (4, 5) in 
 print num
